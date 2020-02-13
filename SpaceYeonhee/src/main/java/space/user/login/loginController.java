@@ -13,9 +13,10 @@ import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import space.common.common.CommandMap;
-import space.main.service.JoinService;
+import space.user.join.JoinService;
 
-
+//why all broken again?
+//한글 주석 추가
 @Controller
 public class loginController {
 
@@ -26,38 +27,38 @@ public class loginController {
 	@Resource(name = "loginService")
 	private LoginService loginService;
 	
-//	로그인 폼
+//	濡쒓렇�씤 �뤌
 
 	@RequestMapping(value = "/login/loginForm", method = RequestMethod.GET)
 
 	public ModelAndView Login(CommandMap commandMap) throws Exception {
-		// 로그인뷰화면
+		// 濡쒓렇�씤酉고솕硫�
 		ModelAndView mv = new ModelAndView("loginForm");
 
 		return mv;
 
 	}
 
-	// 로그인 성공 or 실패시
+	// 濡쒓렇�씤 �꽦怨� or �떎�뙣�떆
 	@Resource
 	private LoginDAO LoginDAO;
 
 	@RequestMapping(value = "/login/login", method = RequestMethod.POST)
 	public ModelAndView LoginProc(CommandMap commandMap, HttpSession session) throws Exception {
-		// 로그인했을때 전달받을 주소값
+		// 濡쒓렇�씤�뻽�쓣�븣 �쟾�떖諛쏆쓣 二쇱냼媛�
 		ModelAndView mv = new ModelAndView();
 		String id = (String) commandMap.get("USER_ID");
 		String db = LoginDAO.findMember(commandMap.getMap());
-		// 로그인 실패
+		// 濡쒓렇�씤 �떎�뙣
 		if (db == null) {
 
-			String alert = "로그인에 실패하였습니다.";
+			String alert = "濡쒓렇�씤�뿉 �떎�뙣�븯���뒿�땲�떎.";
 			mv.addObject("alert", alert);
 			mv.setViewName("loginForm");
 
-			// 로그인 성공
+			// 濡쒓렇�씤 �꽦怨�
 		} else {
-			String alert = "로그인에 성공하였습니다.";
+			String alert = "濡쒓렇�씤�뿉 �꽦怨듯븯���뒿�땲�떎.";
 			mv.addObject("alert", alert);
 			mv.setViewName("redirect:/main");
 			session.setAttribute("USER_ID", id);
@@ -70,14 +71,14 @@ public class loginController {
 
 	}
 
-	// 로그아웃
+	// 濡쒓렇�븘�썐
 	@RequestMapping(value = "/login/logout")
 
 	public ModelAndView Logout(HttpSession session) throws Exception {
-		// 로그인뷰화면
+		// 濡쒓렇�씤酉고솕硫�
 		ModelAndView mv = new ModelAndView("redirect:/main");
 
-		// 로그인세션삭제
+		// 濡쒓렇�씤�꽭�뀡�궘�젣
 
 		session.invalidate();
 
@@ -85,7 +86,7 @@ public class loginController {
 
 	}
 
-  // 아이디 비번찾기 페이지
+  // �븘�씠�뵒 鍮꾨쾲李얘린 �럹�씠吏�
 	@RequestMapping(value = "/login/findIdPwd")
 	public ModelAndView findIdPwd(CommandMap commandMap) throws Exception {
 		ModelAndView mav = new ModelAndView("login/findIdPwd");
@@ -100,32 +101,32 @@ public class loginController {
 	
 	
  
- // 아이디 찾기  
+ // �븘�씠�뵒 李얘린  
   @RequestMapping(value = "/login/findId", method = RequestMethod.POST)
   public String sendMailId(HttpSession session, CommandMap map, RedirectAttributes ra) {
 	  String user = loginService.findAccount(map.getMap()); 
 	  String email = (String)map.get("user_email");
 	  if (user != null) {
-		  String subject = "아이디 찾기 안내 입니다."; 
+		  String subject = "�븘�씠�뵒 李얘린 �븞�궡 �엯�땲�떎."; 
 		  StringBuilder sb = new  StringBuilder(); 
-		  sb.append("귀하의 아이디는 " + user + " 입니다.");
+		  sb.append("洹��븯�쓽 �븘�씠�뵒�뒗 " + user + " �엯�땲�떎.");
 	  	  joinService.send(subject, sb.toString(), "webProjectTeam2@gmail.com", email, null); 
-	  	  ra.addFlashAttribute("resultMsg", "이메일로 가입하신 아이디를 발송했습니다."); 
+	  	  ra.addFlashAttribute("resultMsg", "�씠硫붿씪濡� 媛��엯�븯�떊 �븘�씠�뵒瑜� 諛쒖넚�뻽�뒿�땲�떎."); 
 	  } else {
-		  ra.addFlashAttribute("resultMsg", "해당 이메일로 가입된 아이디가 존재하지 않습니다."); 
+		  ra.addFlashAttribute("resultMsg", "�빐�떦 �씠硫붿씪濡� 媛��엯�맂 �븘�씠�뵒媛� 議댁옱�븯吏� �븡�뒿�땲�떎."); 
 	  } 
-	  return "redirect:/login/findIdPwd"; //메인페이지로 추후 수정 
+	  return "redirect:/login/findIdPwd"; //硫붿씤�럹�씠吏�濡� 異뷀썑 �닔�젙 
    }  
   
   
-  // 비밀번호 찾기
+  // 鍮꾨�踰덊샇 李얘린
   @RequestMapping(value = "/login/findPwd", method = RequestMethod.POST)
   public String sendMailPassword(HttpSession session, CommandMap map, RedirectAttributes ra) {
 	  String email = (String)map.get("user_email");
 	  String user = loginService.findPwd(map.getMap()); 
       if (user == null) {
-			  ra.addFlashAttribute("resultMsg", "입력하신 아이디와 이메일이 일치하지 않습니다."); 
-			  return  "redirect:/login/findIdPwd"; //메인페이지로 추후 수정 
+			  ra.addFlashAttribute("resultMsg", "�엯�젰�븯�떊 �븘�씠�뵒�� �씠硫붿씪�씠 �씪移섑븯吏� �븡�뒿�땲�떎."); 
+			  return  "redirect:/login/findIdPwd"; //硫붿씤�럹�씠吏�濡� 異뷀썑 �닔�젙 
 		  } 
           int ran = new Random().nextInt(100000) + 10000;
           String password = String.valueOf(ran);
@@ -133,11 +134,11 @@ public class loginController {
           map.put("password", password);
           loginService.updateInfo(map.getMap()); 
 
-          String subject = "<공간>임시 비밀번호입니다."; 
+          String subject = "<怨듦컙>�엫�떆 鍮꾨�踰덊샇�엯�땲�떎."; 
 		  StringBuilder sb = new  StringBuilder();
-		  sb.append("귀하의 임시 비밀번호는 " + password + " 입니다. 로그인 후 패스워드를 변경해 주세요.");
+		  sb.append("洹��븯�쓽 �엫�떆 鍮꾨�踰덊샇�뒗 " + password + " �엯�땲�떎. 濡쒓렇�씤 �썑 �뙣�뒪�썙�뱶瑜� 蹂�寃쏀빐 二쇱꽭�슂.");
 		  joinService.send(subject, sb.toString(), "webProjectTeam2@gmail.com",  email, null); 
-		  ra.addFlashAttribute("resultMsg", "이메일로 임시 비밀번호를 발송했습니다.");  
+		  ra.addFlashAttribute("resultMsg", "�씠硫붿씪濡� �엫�떆 鍮꾨�踰덊샇瑜� 諛쒖넚�뻽�뒿�땲�떎.");  
 	   
 	  return "redirect:/login/findIdPwd"; 
 
