@@ -17,7 +17,6 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.servlet.ModelAndView;
 
 import space.common.common.CommandMap;
-import space.main.service.JoinService;
 
 @Controller
 public class joinController {
@@ -30,24 +29,24 @@ public class joinController {
 	private JoinService joinService;
 	
 	
-//회원가입페이지
+//�쉶�썝媛��엯�럹�씠吏�
 	@RequestMapping(value="/join/joinForm",method=RequestMethod.GET)
 	public ModelAndView joinForm(CommandMap commandMap) throws Exception {
 		ModelAndView mav = new ModelAndView("joinForm");
 		return mav;
 	}
 	
-	//가입
+	//媛��엯
 	@RequestMapping(value="/join/signUp")
 	 public ModelAndView signUp(CommandMap commandMap) throws Exception {
 	  joinService.insertUserData(commandMap.getMap());	  
 	 
-	  ModelAndView mav = new ModelAndView("/join/signUpComplete"); //  메인 생기면 메인 경로로 변경할것
-	  mav.addObject("msg", "정상적으로 회원가입이 되었습니다.");
+	  ModelAndView mav = new ModelAndView("/join/signUpComplete"); //  硫붿씤 �깮湲곕㈃ 硫붿씤 寃쎈줈濡� 蹂�寃쏀븷寃�
+	  mav.addObject("msg", "�젙�긽�쟻�쑝濡� �쉶�썝媛��엯�씠 �릺�뿀�뒿�땲�떎.");
 	  
 	  return mav;
 	}
-	//아이디 중복체크
+	//�븘�씠�뵒 以묐났泥댄겕
 	@RequestMapping(value="/join/idCheck")
 	@ResponseBody
 	 public int checkUserID(CommandMap commandMap) throws Exception {
@@ -57,7 +56,7 @@ public class joinController {
 	  return checkResult;
 	 }
 	
-    //이메일 인증-회원가입
+    //�씠硫붿씪 �씤利�-�쉶�썝媛��엯
     @RequestMapping(value = "/join/auth", produces = "application/json")
     @ResponseBody
     public boolean sendMailAuth(HttpSession session, @RequestParam String user_email) {
@@ -65,9 +64,9 @@ public class joinController {
         String joinCode = String.valueOf(ran);
         session.setAttribute("joinCode", joinCode);
  
-        String subject = "<공간> 회원가입 인증 코드입니다.";
+        String subject = "<怨듦컙> �쉶�썝媛��엯 �씤利� 肄붾뱶�엯�땲�떎.";
         StringBuilder sb = new StringBuilder();
-        sb.append("귀하의 인증 코드는 " + joinCode + " 입니다.");
+        sb.append("洹��븯�쓽 �씤利� 肄붾뱶�뒗 " + joinCode + " �엯�땲�떎.");
         return joinService.send(subject, sb.toString(), "webProjectTeam2@gmail.com", user_email, null);
     }
     
