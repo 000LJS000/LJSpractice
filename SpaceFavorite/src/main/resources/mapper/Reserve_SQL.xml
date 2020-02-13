@@ -1,0 +1,157 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="res">
+<select id="getSpaceInfo" parameterType="hashmap" resultType="hashmap">
+<![CDATA[
+SELECT
+	SPACE_ID,
+	SPACE_IMG,
+	SPACE_TITLE,
+	SPACE_SIZE,
+	SPACE_PERSON,
+	SPACE_POS
+FROM
+	SPACE_LIST
+WHERE SPACE_ID = #{SPACE_ID}
+	
+]]>
+</select>
+<select id="getUserInfo" parameterType="hashmap" resultType="hashmap">
+<![CDATA[
+SELECT
+	USER_ID,
+	USER_NAME,
+	USER_EMAIL,
+	USER_PHONE
+FROM
+	USER_LIST
+WHERE USER_DEL ='N'
+AND USER_ID = #{USER_ID}
+	
+]]>
+</select>
+
+
+
+
+<!-- =======================================결제하기 예약정보입력 -->
+<insert id="insertResInfo" parameterType="hashmap">
+<![CDATA[
+INSERT INTO RES_LIST(
+	USER_ID,
+	USER_PHONE,
+	RES_EMAIL,
+	RES_NAME,
+	RES_SPACE_ID,
+	RES_NUM,
+	RES_APPLY_DATE,
+	RES_CONTENT,
+	RES_REQ,
+	RES_PRI
+	)
+VALUES(
+	#{USER_ID},
+	#{PHONE},
+	#{EMAIL},
+	#{NAME},
+	#{SPACE_ID},
+	#{RES_NUM},
+	#{RES_APPLY_DATE},
+	'',
+	#{RES_REQ},
+	#{RES_PRI}
+)
+]]>
+</insert>
+
+
+<select id="selectMyResList" parameterType="hashmap" resultType="hashmap">
+<include refid="common.pagingPre"></include>
+<![CDATA[
+SELECT 
+	ROW_NUMBER()OVER(ORDER BY RES_APPLY_DATE) RNUM, 
+	RES.*
+FROM(
+	SELECT
+		R.RES_APPLY_DATE,
+		R.RES_NUM,
+		S.SPACE_ID,
+		S.SPACE_TITLE,
+		S.SPACE_IMG,
+		R.RES_PRI,
+		S.SPACE_POS,
+		S.SPACE_SIZE,
+		R.RES_NAME,
+		R.USER_PHONE,
+		R.RES_EMAIL,
+		S.SPACE_PERSON
+	FROM
+		SPACE_LIST S
+	INNER JOIN
+		RES_LIST R
+	ON
+		S.SPACE_ID = R.RES_SPACE_ID
+	WHERE
+		USER_ID = #{USER_ID} 
+	AND 
+	]]>
+	<choose>
+		<when test="TYPE =='OLD'">
+			<![CDATA[RES_APPLY_DATE < SYSDATE]]>
+		</when>
+		<otherwise>
+			<![CDATA[RES_APPLY_DATE >= SYSDATE]]>
+		</otherwise>
+	</choose>
+	<![CDATA[
+)RES
+]]>
+<include refid="common.pagingPost"></include>
+</select>
+
+<update id="updateResInfo" parameterType="hashmap">
+<![CDATA[
+UPDATE 
+	RES_LIST
+SET
+	RES_NAME = #{NAME},
+	RES_EMAIL = #{EMAIL},
+	USER_PHONE = #{TEL}
+WHERE 
+	RES_NUM = #{RES_NUM}
+
+]]>
+
+</update>
+
+<insert id="insertReply" parameterType="hashmap">
+<![CDATA[
+INSERT INTO
+	REPLY_LIST(
+		SPACE_ID,
+		USER_ID,
+		REPLY_NUM,
+		REPLY_TITLE,
+		REPLY_CNT,
+		REPLY_CMT,
+		REPLY_IMG,
+		REPLY_DATE,
+		REPLY_DEL
+	)
+	VALUES(
+		#{SPACE_ID},
+		#{USER_ID},
+		REPLY_NUM_SEQ.NEXTVAL,
+		#{TITLE},
+		#{CONTENT},
+		'',
+		#{FILE_NAME},
+		SYSDATE,
+		'N'
+	)
+
+]]>
+	</insert>
+
+</mapper>
