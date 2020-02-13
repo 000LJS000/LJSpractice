@@ -1,0 +1,307 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="admin">
+
+	<select id="selectAdminLogin" parameterType="hashmap" resultType="hashmap">
+		<![CDATA[
+			SELECT
+				USER_ID, 
+				USER_PASSWORD
+			FROM
+				USER_LIST
+			WHERE USER_ID = #{USER_ID}
+			AND USER_PASSWORD = #{USER_PASSWORD}
+			AND ADMIN = 'Y'
+		]]>
+	</select>
+	
+<!-- 회원목록 -->
+	<select id="selectMemberList" parameterType="hashmap" resultType="hashmap">
+	<include refid="common.pagingPre"/>	
+		<![CDATA[
+			SELECT 
+				ROW_NUMBER() OVER (ORDER BY USER_ID DESC) RNUM, 
+			    USER_ID,
+			    USER_NAME,
+			    USER_PHONE,
+			    USER_EMAIL,
+			    TO_CHAR(USER_DATE, 'YYYY-MM-DD HH24:MI') AS USER_DATE  
+			FROM 
+			    USER_LIST 
+			WHERE 
+				USER_VISIBLE='N'    
+		]]>
+	<include refid="search.member" />
+	<include refid="common.pagingPost"/>	
+	</select>
+	
+	<!-- 예약목록리스트 -->
+	<select id="selectAdminResList" parameterType="hashmap" resultType="hashmap">
+		<include refid="common.pagingPre"/>	
+		<![CDATA[
+			SELECT 
+				ROW_NUMBER()OVER(ORDER BY SPACE_ID DESC) RNUM,
+				RST.* FROM(
+				SELECT 
+					SPACE_ID,
+					SPACE_TITLE,
+					SPACE_USE,
+					SPACE_IMG,
+					SPACE_POS,
+					SPACE_PRI,
+					RES_APPLY_DATE,
+					USER_ID,
+					USER_PHONE,
+					RES_EMAIL,
+					RES_NAME,
+					RES_NUM 
+				FROM 
+					RES_LIST R 
+				INNER JOIN 
+					SPACE_LIST 
+				ON R.RES_SPACE_ID = SPACE_ID
+			)RST
+		]]>
+		<include refid="search.member" />
+	<include refid="common.pagingPost"/>
+	</select>
+	
+	<!-- 등록된공간리스트 -->
+	<select id="selectspaceList" parameterType="hashMap" resultType="hashMap">
+	<include refid="common.pagingPre"/>	
+		<![CDATA[ 
+			SELECT 
+				ROW_NUMBER() OVER (ORDER BY S.SPACE_ID DESC) RNUM, 
+				S.SPACE_ID, 
+				S.SPACE_TITLE, 
+				S.SPACE_USE, 
+				S.SPACE_POS, 
+				S.SPACE_PRI, 
+				S.SPACE_IMG, 
+				S.SPACE_HOST,
+				U.USER_NAME,
+				U.USER_PHONE, 
+				U.USER_EMAIL 
+			FROM
+				SPACE_LIST S, 
+				USER_LIST U 
+			WHERE 
+				SPACE_HOLD = 'N' AND SPACE_DEL_GB = 'N'
+   		 ORDER BY SPACE_ID DESC
+		]]>
+		<include refid="common.pagingPost"/>
+	</select>
+
+<!-- 공간신청리스트 -->
+<select id="selectreqList" parameterType="hashmap" resultType="hashmap">
+	<include refid="common.pagingPre"/>	
+	<![CDATA[
+		SELECT 
+		ROW_NUMBER() OVER (ORDER BY APPLY_NUM DESC) RNUM,
+			APPLY_NUM, 
+			APPLY_MODIFY,
+			APPLY_IMG,
+			APPLY_TITLE,
+			APPLY_POS,
+			APPLY_PRI,
+			APPLY_USE,
+  			APPLY_ID,
+			USER_ID,
+			USER_NAME,
+			USER_PHONE,
+			USER_EMAIL
+		FROM 
+			SPACE_APPLY_LIST
+		INNER JOIN 
+			USER_LIST
+		ON 
+			APPLY_ID=USER_ID
+		ORDER BY APPLY_NUM DESC
+	]]>
+	<include refid="search.member" />
+	<include refid="common.pagingPost"/>
+</select>
+	
+	<!-- 공지사항 관련 -->
+	<!-- 공지사항 리스트 -->
+	<select id="selectAdminNoticeList" parameterType="hashmap" resultType="hashmap">
+	<include refid="common.pagingPre"/>
+		<![CDATA[
+			SELECT 
+				ROW_NUMBER() OVER (ORDER BY NTC_NUM DESC) RNUM,
+				NTC_NUM,  
+				NTC_TITLE, 
+				TO_CHAR(NTC_DATE, 'YYYY-MM-DD HH24:MI') AS NTC_DATE, 
+				NTC_HIT   
+			FROM
+				ADMIN_NOTICE_LIST 
+		]]>		
+	<include refid="search.notice" />	
+		<![CDATA[
+			order by NTC_NUM desc
+		]]>
+	<include refid="common.pagingPost"/>
+	</select>
+	<!-- 공지사항 글작성 -->
+	<insert id="insertNotice" parameterType="hashMap">
+		<![CDATA[ 
+			INSERT INTO 
+			ADMIN_NOTICE_LIST ( 
+				NTC_NUM, 
+				NTC_TITLE, 
+				NTC_CONTENT, 
+				NTC_DATE, 
+				NTC_HIT 
+			) VALUES (
+				NTC_NUM_SEQ.NEXTVAL, 
+				#{NTC_TITLE}, 
+				#{NTC_CONTENT}, 
+				SYSDATE, 
+				'0' 
+			) 
+		]]>
+	</insert>
+	
+	
+	<!-- 공지사항 상세보기 -->
+	<select id="selectAdminNoticeDetail" parameterType="hashmap" resultType="hashmap">
+		<![CDATA[
+			SELECT 
+				NTC_NUM, 
+				NTC_TITLE, 
+				NTC_CONTENT, 
+				NTC_DATE, 
+				NTC_HIT   
+			FROM 
+				ADMIN_NOTICE_LIST 
+			WHERE 
+				NTC_NUM = #{NTC_NUM} 
+		]]>	
+	</select>
+	
+	<!-- 공지사항 상세보기 카운트 -->
+	<update id="updateNoticeHitCnt" parameterType="hashmap">
+		<![CDATA[
+			UPDATE ADMIN_NOTICE_LIST 
+			SET
+				NTC_HIT = NVL(NTC_HIT, 0) + 1
+			WHERE
+				NTC_NUM = #{NTC_NUM}	
+		]]>
+	</update>
+	
+	<!--공지사항 글 삭제 -->
+	<delete id="deleteNotice" parameterType="hashmap">
+		<![CDATA[ 
+			DELETE FROM ADMIN_NOTICE_LIST WHERE NTC_NUM = #{NTC_NUM}	
+		]]>
+	</delete>
+	
+	<!-- 공지사항 글 수정 -->
+	<update id="modifyNotice" parameterType="hashMap">
+		<![CDATA[
+			UPDATE ADMIN_NOTICE_LIST 
+			SET 
+				NTC_TITLE = #{NTC_TITLE},
+ 		      	NTC_CONTENT = #{NTC_CONTENT},
+  		      	NTC_DATE = SYSDATE 
+			WHERE 
+				NTC_NUM = #{NTC_NUM}
+		]]>
+	</update>
+	
+	<!-- **** 이곳부터 1:1 문의관리**** -->
+	
+	<!-- 1:1문의 리스트 -->
+	<select id="selectAdminQNAList" parameterType="hashMap" resultType="hashMap">
+	<include refid="common.pagingPre"/>	
+		<![CDATA[ 
+			SELECT 
+				ROW_NUMBER() OVER (ORDER BY ADQNA_NUM DESC) RNUM, 
+				USER_ID, 
+				ADQNA_NUM,  
+				ADQNA_TITLE, 
+				TO_CHAR(ADQNA_DATE, 'YYYY-MM-DD HH24:MI') AS ADQNA_DATE,   
+				QA_ANS 
+			FROM 
+				ADMIN_QNA_LIST 
+		]]>
+	<include refid="search.ADQNA" />
+		<![CDATA[		 
+			order by ADQNA_NUM desc   
+		]]>
+	<include refid="common.pagingPost"/>
+	</select>
+	
+	<!-- 1:1문의 상세보기 페이지 -->
+	<select id="selectAdminQNADetail" resultType="hashMap" parameterType="hashMap" >
+		<![CDATA[ 
+			SELECT 
+				C.USER_ID AS ADMIN_ID, 
+				C.CMT_CMT, 
+				C.CMT_DATE, 
+				C.CMT_NUM, 
+                L.USER_ID, 
+				L.ADQNA_NUM, 
+				L.ADQNA_TITLE, 
+				L.ADQNA_CNT, 
+				L.QA_ANS, 
+				L.ADQNA_DATE 
+			FROM 
+				ADMIN_QNA_COMMENTS C, ADMIN_QNA_LIST L  
+			WHERE 
+				L.ADQNA_NUM = C.ADQNA_NUM (+) 
+			AND L.ADQNA_NUM = #{ADQNA_NUM}
+		]]>
+	</select>
+	
+	<!-- 1:1문의 삭제하기 -->
+	<delete id="deleteQNA" parameterType="hashmap">
+		<![CDATA[ 
+			DELETE FROM ADMIN_QNA_LIST WHERE ADQNA_NUM = #{ADQNA_NUM} 
+		]]>
+	</delete>
+	
+	<!--  1:1문의하기 댓글(답글) 달기 -->
+	<insert id="insertComment" parameterType="hashMap" >
+		<![CDATA[ 
+			INSERT INTO 
+				ADMIN_QNA_COMMENTS ( 
+				USER_ID, 
+                ADQNA_NUM, 
+				CMT_NUM, 
+				CMT_CMT, 
+				CMT_DATE
+			) VALUES (
+				'admin', 
+                #{ADQNA_NUM}, 
+				CMT_NUM_SEQ.NEXTVAL, 
+				#{CMT_CMT}, 
+				SYSDATE 
+			) 
+		]]>
+	</insert>
+	
+	<!--  1:1문의하기 댓글(답글) 삭제 하기 -->
+	<delete id="deleteComment" parameterType="hashMap" >
+		<![CDATA[ 
+			DELETE FROM ADMIN_QNA_COMMENTS WHERE CMT_NUM = #{CMT_NUM} 
+		]]>
+	</delete>
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+
+
+</mapper>

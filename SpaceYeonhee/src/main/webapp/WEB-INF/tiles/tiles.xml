@@ -1,0 +1,92 @@
+<!DOCTYPE tiles-definitions PUBLIC
+  "-//Apache Software Foundation//DTD Tiles Configuration 3.0//EN"
+  "http://tiles.apache.org/dtds/tiles-config_3_0.dtd">
+ 
+<tiles-definitions>
+ 
+ <!-- 메인기본 -->
+    <definition name="mainlayout" template="/WEB-INF/jsp/layout/layout.jsp">
+        <put-attribute name="header" value="/WEB-INF/jsp/layout/header.jsp"/>
+ 		<put-attribute name="contents" value="/WEB-INF/jsp/layout/body.jsp"/>
+        <put-attribute name="footer" value="/WEB-INF/jsp/layout/footer.jsp"/>
+	</definition>
+	
+	
+	<!-- 메인페이지 content화면 -->
+	<definition name="main" extends="mainlayout" >
+	<put-attribute name="contents" value="/WEB-INF/jsp/main/main.jsp"></put-attribute>
+	</definition>
+	
+	 <!--mypage-->
+ <definition name="modifyform" template="/WEB-INF/jsp/mypage/modifyform.jsp">
+        <put-attribute name="header" value="/WEB-INF/jsp/layout/header.jsp"/>
+ 		<put-attribute name="nav" value="/WEB-INF/jsp/mypage/mypagenav.jsp"/>
+ 		<put-attribute name="contents" value="/WEB-INF/jsp/mypage/modify.jsp"/>
+        <put-attribute name="footer" value="/WEB-INF/jsp/layout/footer.jsp"/>
+        
+ </definition>
+
+	<!-- mypage 들어왔을때 passwordcheck -->
+	 <definition name="pwdcheck" extends="modifyform">
+ 	<put-attribute name="contents" value="/WEB-INF/jsp/mypage/pwdcheck.jsp"></put-attribute>
+ 	
+ 
+ </definition>
+	<!-- mypage 들어왔을때 패스워드 일치할경우  -->
+	 <definition name="modify" extends="modifyform">
+ 	<put-attribute name="contents" value="/WEB-INF/jsp/mypage/modify.jsp"></put-attribute>
+ 	
+ 
+ </definition>
+ <!-- 로그인페이지 -->
+ <definition name="loginForm" extends="mainlayout">
+ 	<put-attribute name="contents" value="/WEB-INF/jsp/login.jsp"></put-attribute>
+ 
+ </definition>
+
+ <!-- 회원가입페이지 -->
+ <definition name="joinForm" extends="mainlayout">
+ 	<put-attribute name="contents" value="/WEB-INF/jsp/join/join.jsp"></put-attribute>
+ 
+ </definition>
+ <!--아이디/비밀번호찾기-->
+ <definition name="findIdPwd" extends="mainlayout">
+ 	<put-attribute name="contents" value="/WEB-INF/jsp/findIdPwd.jsp"></put-attribute>
+ 
+ </definition>
+<!--메인 list화면에서 검색버튼 눌렀을때 보여지는 화면  -->
+ <definition name="spaceList" extends="mainlayout">
+ 	<put-attribute name="contents" value="/WEB-INF/jsp/main/spaceList.jsp"></put-attribute>
+ 
+ </definition>
+ <!--메인 list화면 클릭시 상세페이지  -->
+ <definition name="spaceDetail" extends="mainlayout">
+ 	<put-attribute name="contents" value="/WEB-INF/jsp/main/spaceDetail.jsp"></put-attribute>
+ 
+ </definition>
+ <!--Mypage부분  -->
+ 
+<!--내공간관리 (등록하기) -->
+<definition name="form" extends="modifyform">
+	<put-attribute name="contents" value="/WEB-INF/jsp/mySpace/form.jsp"/>
+</definition>
+<!--내 공간관리(관리하기)-->
+<definition name="mypage_list" extends="modifyform">
+	<put-attribute name="contents" value="/WEB-INF/jsp/mySpace/controlList.jsp"/>
+</definition>
+
+<!-- 내 공간관리(예약상황) -->
+<definition name="mySpaceResList" extends="modifyform">
+	<put-attribute name="contents" value="/WEB-INF/jsp/mySpace/mySpaceResList.jsp"/>
+</definition>
+
+<!-- 내가 예약한 공간 -->
+<definition name="myResList" extends="modifyform">
+	<put-attribute name="contents" value="/WEB-INF/jsp/res/myResList.jsp"/>
+</definition>
+<!--내가 찜한공간  -->
+<definition name="myFav" extends="modifyform">
+	<put-attribute name="contents" value="/WEB-INF/jsp/mypage/myFav.jsp"/>
+</definition>
+
+</tiles-definitions>
